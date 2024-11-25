@@ -8,6 +8,6 @@ package mx.itson.controladores;
  *
  * @author luismorellb
  */
-public class VentaBoletos {
+public class TerminalControlador {
     
 }

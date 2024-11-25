@@ -6,8 +6,54 @@ package mx.itson.proyectobus;
 
 /**
  *
- * @author luismorellb
+ * @author pedrizquierdo
  */
 public class Terminal {
+
+    
+    public Terminal(String nombre, int orden) {
+    this.nombre = nombre;
+    this.orden = orden;
+}
+    
+    /**
+     * @return the nombre
+     */
+    public String getNombre() {
+        return nombre;
+    }
+
+    /**
+     * @param nombre the nombre to set
+     */
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    /**
+     * @return the orden
+     */
+    public int getOrden() {
+        return orden;
+    }
+
+    /**
+     * @param orden the orden to set
+     */
+    public void setOrden(int orden) {
+        this.orden = orden;
+    }
+    
+@Override
+public String toString() {
+    return "Terminal{" +
+            "nombre='" + nombre + '\'' +
+            ", orden=" + orden +
+            '}';
+}
+
+    
+    private String nombre;
+    private int orden;
     
 }

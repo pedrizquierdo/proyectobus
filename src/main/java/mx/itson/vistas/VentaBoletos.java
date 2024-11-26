@@ -222,6 +222,11 @@ public class VentaBoletos extends javax.swing.JFrame {
         jPanel5.add(jPanel10);
 
         btnComprar.setText("Comprar boleto(s)");
+        btnComprar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnComprarActionPerformed(evt);
+            }
+        });
 
         btnMostrarReporte.setText("Mostrar Reporte");
         btnMostrarReporte.addActionListener(new java.awt.event.ActionListener() {
@@ -416,6 +421,55 @@ public class VentaBoletos extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnActualizarTerminalActionPerformed
 
+    private void btnComprarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComprarActionPerformed
+
+        if (asientoSeleccionado == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor selecciona un asiento.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Validar los datos ingresados
+    String nombre = txtNombre.getText().trim();
+    String destino = (String) jComboBox1.getSelectedItem();
+    double precio;
+
+    if (nombre.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor ingresa el nombre del pasajero.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    try {
+        precio = Double.parseDouble(txtPrecio.getText());
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Por favor ingresa un precio válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Registrar la información del pasajero
+    asientos[asientoSeleccionado] = 1;
+    nombresPasajeros[asientoSeleccionado] = nombre;
+    destinos[asientoSeleccionado] = destino;
+    precios[asientoSeleccionado] = precio;
+    origenes[asientoSeleccionado] = terminales[terminalActual];
+
+    // Actualizar la ganancia
+    gananciaTotal += precio;
+
+    // Cambiar el color del botón para indicar que el asiento está ocupado
+    JButton btn = obtenerBotonPorIndice(asientoSeleccionado);
+    btn.setBackground(Color.RED);
+    btn.setEnabled(false);
+
+    // Mostrar mensaje de éxito
+    JOptionPane.showMessageDialog(this, "Boleto comprado: " + nombre + " en el asiento " + (asientoSeleccionado + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+    // Resetear la selección de asiento
+    asientoSeleccionado = -1;
+    txtNombre.setText("");
+    txtPrecio.setText("");
+        
+    }//GEN-LAST:event_btnComprarActionPerformed
+
     private void agregarListenerAAsientos() {
         // Agregar listeners a todos los botones de asientos
         for (int i = 0; i < NUM_ASIENTOS; i++) {
@@ -432,17 +486,21 @@ public class VentaBoletos extends javax.swing.JFrame {
 
 
     private void mostrarAsientosDisponibles() {
-        for (int i = 0; i < NUM_ASIENTOS; i++) {
-            JButton btn = obtenerBotonPorIndice(i);
-            if (asientos[i] == 1) {
-                btn.setBackground(OCUPADO_COLOR);
-                btn.setEnabled(false);
-            } else {
-                btn.setBackground(DISPONIBLE_COLOR);
-                btn.setEnabled(true);
-            }
+    for (int i = 0; i < 20; i++) {
+        JButton btn = obtenerBotonPorIndice(i);
+        if (asientos[i] == 1) {
+            btn.setBackground(Color.RED);
+            btn.setEnabled(false);
+        } else if (i == asientoSeleccionado) {
+            btn.setBackground(Color.YELLOW); // Mantener la preselección
+            btn.setEnabled(true);
+        } else {
+            btn.setBackground(Color.GREEN);
+            btn.setEnabled(true);
         }
     }
+}
+
 
     private JButton obtenerBotonPorIndice(int indice) {
         // Obtener el botón correspondiente al índice
@@ -456,41 +514,21 @@ public class VentaBoletos extends javax.swing.JFrame {
         }
     }
 
+    private int asientoSeleccionado = -1; // Índice del asiento preseleccionado (-1 si no hay selección)
+
     private void seleccionarAsiento(int indice) {
-    // Validar si el asiento está disponible
-    if (asientos[indice] == 0) {
-        // Obtener el nombre y destino del pasajero
-        String nombre = txtNombre.getText();
-        String destino = (String) jComboBox1.getSelectedItem();  // Obtener el destino seleccionado
-        double precio = 0.0;
-
-        try {
-            // Obtener el precio ingresado por el usuario
-            precio = Double.parseDouble(txtPrecio.getText());
-        } catch (NumberFormatException e) {
-            // Si el usuario no ingresa un número válido, mostrar un mensaje de error
-            JOptionPane.showMessageDialog(this, "Por favor ingresa un precio válido", "Error de Precio", JOptionPane.ERROR_MESSAGE);
-            return;  // Salir del método sin procesar la compra
-        }
-
-        // Registrar la información del pasajero
-        asientos[indice] = 1;
-        nombresPasajeros[indice] = nombre;
-        destinos[indice] = destino;
-        precios[indice] = precio;
-        origenes[indice] = terminales[terminalActual];
-
-        // Actualizar la ganancia
-        gananciaTotal += precio;
-
-        // Cambiar el color del botón para indicar que el asiento está ocupado
-        JButton btn = obtenerBotonPorIndice(indice);
-        btn.setBackground(Color.RED);
-        btn.setEnabled(false);
-
-        JOptionPane.showMessageDialog(this, "Boleto comprado: " + nombre + " en el asiento " + (indice + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
+    // Si ya hay un asiento preseleccionado, restaurar su color
+    if (asientoSeleccionado != -1) {
+        JButton btnAnterior = obtenerBotonPorIndice(asientoSeleccionado);
+        btnAnterior.setBackground(asientos[asientoSeleccionado] == 1 ? Color.RED : Color.GREEN);
     }
+
+    // Marcar el nuevo asiento como preseleccionado
+    asientoSeleccionado = indice;
+    JButton btnActual = obtenerBotonPorIndice(asientoSeleccionado);
+    btnActual.setBackground(Color.YELLOW); // Indicar preselección
 }
+
 
 
 

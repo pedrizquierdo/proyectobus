@@ -77,7 +77,7 @@ public class VentaBoletos extends javax.swing.JFrame {
         txtPrecio = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
         btnComprar = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        btnMostrarReporte = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         btnB1 = new javax.swing.JButton();
         btnB3 = new javax.swing.JButton();
@@ -102,6 +102,11 @@ public class VentaBoletos extends javax.swing.JFrame {
         jPanel1.add(lblTerminalActual);
 
         btnActualizarTerminal.setText("Actualizar Terminal");
+        btnActualizarTerminal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarTerminalActionPerformed(evt);
+            }
+        });
         jPanel1.add(btnActualizarTerminal);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -218,7 +223,12 @@ public class VentaBoletos extends javax.swing.JFrame {
 
         btnComprar.setText("Comprar boleto(s)");
 
-        jButton1.setText("Mostrar Reporte");
+        btnMostrarReporte.setText("Mostrar Reporte");
+        btnMostrarReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMostrarReporteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -228,7 +238,7 @@ public class VentaBoletos extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addComponent(btnComprar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(btnMostrarReporte)
                 .addGap(53, 53, 53))
         );
         jPanel9Layout.setVerticalGroup(
@@ -237,7 +247,7 @@ public class VentaBoletos extends javax.swing.JFrame {
                 .addGap(38, 38, 38)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnComprar)
-                    .addComponent(jButton1))
+                    .addComponent(btnMostrarReporte))
                 .addContainerGap(58, Short.MAX_VALUE))
         );
 
@@ -359,6 +369,53 @@ public class VentaBoletos extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnA2ActionPerformed
 
+    private void btnMostrarReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarReporteActionPerformed
+        StringBuilder reporte = new StringBuilder();
+        reporte.append("Reporte de Viaje: \n\n");
+
+        for (int i = 0; i < NUM_ASIENTOS; i++) {
+            if (asientos[i] == 1) {
+                reporte.append("Nombre: ").append(nombresPasajeros[i]).append("\n");
+                reporte.append("Origen: ").append(origenes[i]).append("\n");
+                reporte.append("Destino: ").append(destinos[i]).append("\n");
+                reporte.append("Precio: ").append(precios[i]).append("\n");
+                reporte.append("Asiento: ").append(i + 1).append("\n\n");
+            }
+        }
+
+        reporte.append("Ganancia Total: ").append(gananciaTotal);
+        JOptionPane.showMessageDialog(this, reporte.toString(), "Reporte Final", JOptionPane.INFORMATION_MESSAGE);
+        
+        
+    }//GEN-LAST:event_btnMostrarReporteActionPerformed
+
+    private void btnActualizarTerminalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarTerminalActionPerformed
+
+        int pasajerosBajados = 0;
+    for (int i = 0; i < 20; i++) {
+        if (asientos[i] == 1) {
+            if (terminales[terminalActual].equals(destinos[i])) {
+                pasajerosBajados++;
+                asientos[i] = 0; // Liberar el asiento
+            }
+        }
+    }
+
+    // Mostrar mensaje de los pasajeros que se bajan
+    JOptionPane.showMessageDialog(this, "Se bajaron " + pasajerosBajados + " pasajeros en " + terminales[terminalActual], "Pasajeros Bajados", JOptionPane.INFORMATION_MESSAGE);
+
+    // Avanzar a la siguiente terminal
+    terminalActual++;
+
+    // Verificar si hemos llegado a la última terminal
+    if (terminalActual < terminales.length) {
+        actualizarTerminal();  // Actualizar la terminal actual en la interfaz
+    } else {
+        btnActualizarTerminal.setEnabled(false);  // Deshabilitar el botón si es la última terminal
+    }
+        
+    }//GEN-LAST:event_btnActualizarTerminalActionPerformed
+
     private void agregarListenerAAsientos() {
         // Agregar listeners a todos los botones de asientos
         for (int i = 0; i < NUM_ASIENTOS; i++) {
@@ -436,51 +493,7 @@ public class VentaBoletos extends javax.swing.JFrame {
 }
 
 
-    private void btnActualizarTerminalActionPerformed(java.awt.event.ActionEvent evt) {
-    // Mostrar cuántos pasajeros se bajan en la terminal actual
-    int pasajerosBajados = 0;
-    for (int i = 0; i < 20; i++) {
-        if (asientos[i] == 1) {
-            if (terminales[terminalActual].equals(destinos[i])) {
-                pasajerosBajados++;
-                asientos[i] = 0; // Liberar el asiento
-            }
-        }
-    }
 
-    // Mostrar mensaje de los pasajeros que se bajan
-    JOptionPane.showMessageDialog(this, "Se bajaron " + pasajerosBajados + " pasajeros en " + terminales[terminalActual], "Pasajeros Bajados", JOptionPane.INFORMATION_MESSAGE);
-
-    // Avanzar a la siguiente terminal
-    terminalActual++;
-
-    // Verificar si hemos llegado a la última terminal
-    if (terminalActual < terminales.length) {
-        actualizarTerminal();  // Actualizar la terminal actual en la interfaz
-    } else {
-        btnActualizarTerminal.setEnabled(false);  // Deshabilitar el botón si es la última terminal
-    }
-}
-
-
-    private void btnMostrarReporteActionPerformed(java.awt.event.ActionEvent evt) {
-        StringBuilder reporte = new StringBuilder();
-        reporte.append("Reporte de Viaje: \n\n");
-
-        for (int i = 0; i < NUM_ASIENTOS; i++) {
-            if (asientos[i] == 1) {
-                reporte.append("Nombre: ").append(nombresPasajeros[i]).append("\n");
-                reporte.append("Origen: ").append(origenes[i]).append("\n");
-                reporte.append("Destino: ").append(destinos[i]).append("\n");
-                reporte.append("Precio: ").append(precios[i]).append("\n");
-                reporte.append("Asiento: ").append(i + 1).append("\n\n");
-            }
-        }
-
-        reporte.append("Ganancia Total: ").append(gananciaTotal);
-        JOptionPane.showMessageDialog(this, reporte.toString(), "Reporte Final", JOptionPane.INFORMATION_MESSAGE);
-    }
- 
     
     /**
      * @param args the command line arguments
@@ -540,7 +553,7 @@ public class VentaBoletos extends javax.swing.JFrame {
     private javax.swing.JButton btnB8;
     private javax.swing.JButton btnB9;
     private javax.swing.JButton btnComprar;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnMostrarReporte;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -5,7 +5,10 @@
 package mx.itson.vistas;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
+import mx.itson.proyectobus.Asiento;
 
 /**
  *
@@ -19,27 +22,28 @@ public class VentaBoletos extends javax.swing.JFrame {
     private static final int NUM_ASIENTOS = 20; // Total de asientos
     private static final Color DISPONIBLE_COLOR = Color.GREEN;
     private static final Color OCUPADO_COLOR = Color.RED;
-
-    private int[] asientos = new int[NUM_ASIENTOS]; // 0 = disponible, 1 = ocupado
-    private String[] nombresPasajeros = new String[NUM_ASIENTOS];
-    private String[] destinos = new String[NUM_ASIENTOS];
-    private double[] precios = new double[NUM_ASIENTOS];
-    private String[] origenes = new String[NUM_ASIENTOS];
+    private int asientoSeleccionado = -1;
+    
+    
+    private List<Asiento> asientos = new ArrayList<>();
+ // 0 = disponible, 1 = ocupado
     private double gananciaTotal = 0.0;
 
     private String[] terminales = {"Navojoa", "Obregón", "Empalme", "Guaymas", "Hermosillo", "Santa Ana", "Magdalena", "Imuris", "Nogales"};
     private int terminalActual = 0; // Empezamos en la primera terminal
 
     public VentaBoletos() {
-        initComponents();
-        actualizarTerminal();
-        // Agregar un solo ActionListener para todos los botones de asientos
-        agregarListenerAAsientos();
-        for (String terminal : terminales) {
-        jComboBox1.addItem(terminal);  // Agrega los destinos al JComboBox
+    initComponents();
+    for (String terminal : terminales) {
+    jComboBox1.addItem(terminal);
+}
+    for (int i = 0; i < 20; i++) { // 20 asientos por defecto
+        asientos.add(new Asiento());
     }
-        
-    }
+    agregarListenerAAsientos();
+
+    actualizarTerminal();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -375,49 +379,55 @@ public class VentaBoletos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnA2ActionPerformed
 
     private void btnMostrarReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarReporteActionPerformed
-        StringBuilder reporte = new StringBuilder();
-        reporte.append("Reporte de Viaje: \n\n");
+        StringBuilder reporte = new StringBuilder("Reporte de Viaje:\n\n");
 
-        for (int i = 0; i < NUM_ASIENTOS; i++) {
-            if (asientos[i] == 1) {
-                reporte.append("Nombre: ").append(nombresPasajeros[i]).append("\n");
-                reporte.append("Origen: ").append(origenes[i]).append("\n");
-                reporte.append("Destino: ").append(destinos[i]).append("\n");
-                reporte.append("Precio: ").append(precios[i]).append("\n");
-                reporte.append("Asiento: ").append(i + 1).append("\n\n");
-            }
+    for (int i = 0; i < asientos.size(); i++) {
+        Asiento asiento = asientos.get(i);
+        if (asiento.isOcupado()) {
+            reporte.append("Nombre: ").append(asiento.getNombrePasajero()).append("\n")
+                   .append("Origen: ").append(asiento.getOrigen()).append("\n")
+                   .append("Destino: ").append(asiento.getDestino()).append("\n")
+                   .append("Precio: ").append(asiento.getPrecio()).append("\n")
+                   .append("Asiento: ").append(i + 1).append("\n\n");
         }
+    }
 
-        reporte.append("Ganancia Total: ").append(gananciaTotal);
-        JOptionPane.showMessageDialog(this, reporte.toString(), "Reporte Final", JOptionPane.INFORMATION_MESSAGE);
+    reporte.append("Ganancia Total: ").append(gananciaTotal);
+    JOptionPane.showMessageDialog(this, reporte.toString(), "Reporte Final", JOptionPane.INFORMATION_MESSAGE);
         
         
     }//GEN-LAST:event_btnMostrarReporteActionPerformed
 
     private void btnActualizarTerminalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarTerminalActionPerformed
 
-        int pasajerosBajados = 0;
-    for (int i = 0; i < 20; i++) {
-        if (asientos[i] == 1) {
-            if (terminales[terminalActual].equals(destinos[i])) {
-                pasajerosBajados++;
-                asientos[i] = 0; // Liberar el asiento
-            }
+        if (terminalActual >= terminales.length - 1) {
+        JOptionPane.showMessageDialog(this, "Ya estás en la última terminal.", "Información", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    // Liberar asientos cuyo destino sea la terminal actual
+    int pasajerosBajados = 0;
+    for (Asiento asiento : asientos) {
+        if (asiento.isOcupado() && asiento.getDestino().equals(terminales[terminalActual])) {
+            pasajerosBajados++;
+            asiento.setOcupado(false);
+            asiento.setNombrePasajero(null);
+            asiento.setOrigen(null);
+            asiento.setDestino(null);
+            asiento.setPrecio(0.0);
         }
     }
 
-    // Mostrar mensaje de los pasajeros que se bajan
-    JOptionPane.showMessageDialog(this, "Se bajaron " + pasajerosBajados + " pasajeros en " + terminales[terminalActual], "Pasajeros Bajados", JOptionPane.INFORMATION_MESSAGE);
+    // Mensaje informativo
+    JOptionPane.showMessageDialog(this,
+        "Se bajaron " + pasajerosBajados + " pasajeros en la terminal: " + terminales[terminalActual],
+        "Terminal Actualizada",
+        JOptionPane.INFORMATION_MESSAGE
+    );
 
     // Avanzar a la siguiente terminal
     terminalActual++;
-
-    // Verificar si hemos llegado a la última terminal
-    if (terminalActual < terminales.length) {
-        actualizarTerminal();  // Actualizar la terminal actual en la interfaz
-    } else {
-        btnActualizarTerminal.setEnabled(false);  // Deshabilitar el botón si es la última terminal
-    }
+    actualizarTerminal();
         
     }//GEN-LAST:event_btnActualizarTerminalActionPerformed
 
@@ -428,7 +438,6 @@ public class VentaBoletos extends javax.swing.JFrame {
         return;
     }
 
-    // Validar los datos ingresados
     String nombre = txtNombre.getText().trim();
     String destino = (String) jComboBox1.getSelectedItem();
     double precio;
@@ -445,28 +454,28 @@ public class VentaBoletos extends javax.swing.JFrame {
         return;
     }
 
-    // Registrar la información del pasajero
-    asientos[asientoSeleccionado] = 1;
-    nombresPasajeros[asientoSeleccionado] = nombre;
-    destinos[asientoSeleccionado] = destino;
-    precios[asientoSeleccionado] = precio;
-    origenes[asientoSeleccionado] = terminales[terminalActual];
+    // Asignar datos al asiento
+    Asiento asiento = asientos.get(asientoSeleccionado);
+    asiento.setOcupado(true);
+    asiento.setNombrePasajero(nombre);
+    asiento.setDestino(destino);
+    asiento.setOrigen(terminales[terminalActual]);
+    asiento.setPrecio(precio);
 
-    // Actualizar la ganancia
     gananciaTotal += precio;
 
-    // Cambiar el color del botón para indicar que el asiento está ocupado
+    // Actualizar visualización del botón
     JButton btn = obtenerBotonPorIndice(asientoSeleccionado);
     btn.setBackground(Color.RED);
     btn.setEnabled(false);
 
-    // Mostrar mensaje de éxito
-    JOptionPane.showMessageDialog(this, "Boleto comprado: " + nombre + " en el asiento " + (asientoSeleccionado + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
+    JOptionPane.showMessageDialog(this, "Boleto comprado para: " + nombre + " en el asiento " + (asientoSeleccionado + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
-    // Resetear la selección de asiento
+    // Resetear campos
     asientoSeleccionado = -1;
     txtNombre.setText("");
     txtPrecio.setText("");
+
         
     }//GEN-LAST:event_btnComprarActionPerformed
 
@@ -481,21 +490,26 @@ public class VentaBoletos extends javax.swing.JFrame {
 
     private void actualizarTerminal() {
     lblTerminalActual.setText("Terminal actual: " + terminales[terminalActual]);
-    mostrarAsientosDisponibles();  // Mostrar los asientos disponibles en la nueva terminal
+    mostrarAsientosDisponibles();
+
+    // Deshabilitar botón si estás en la última terminal
+    btnActualizarTerminal.setEnabled(terminalActual < terminales.length - 1);
 }
 
 
     private void mostrarAsientosDisponibles() {
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < asientos.size(); i++) {
         JButton btn = obtenerBotonPorIndice(i);
-        if (asientos[i] == 1) {
+        Asiento asiento = asientos.get(i);
+
+        if (asiento.isOcupado()) {
             btn.setBackground(Color.RED);
             btn.setEnabled(false);
         } else if (i == asientoSeleccionado) {
-            btn.setBackground(Color.YELLOW); // Mantener la preselección
+            btn.setBackground(Color.YELLOW); // Preselección
             btn.setEnabled(true);
         } else {
-            btn.setBackground(Color.GREEN);
+            btn.setBackground(Color.GREEN); // Disponible
             btn.setEnabled(true);
         }
     }
@@ -514,20 +528,20 @@ public class VentaBoletos extends javax.swing.JFrame {
         }
     }
 
-    private int asientoSeleccionado = -1; // Índice del asiento preseleccionado (-1 si no hay selección)
-
     private void seleccionarAsiento(int indice) {
-    // Si ya hay un asiento preseleccionado, restaurar su color
     if (asientoSeleccionado != -1) {
         JButton btnAnterior = obtenerBotonPorIndice(asientoSeleccionado);
-        btnAnterior.setBackground(asientos[asientoSeleccionado] == 1 ? Color.RED : Color.GREEN);
+        Asiento asientoAnterior = asientos.get(asientoSeleccionado);
+        btnAnterior.setBackground(asientoAnterior.isOcupado() ? Color.RED : Color.GREEN);
     }
 
-    // Marcar el nuevo asiento como preseleccionado
     asientoSeleccionado = indice;
     JButton btnActual = obtenerBotonPorIndice(asientoSeleccionado);
-    btnActual.setBackground(Color.YELLOW); // Indicar preselección
+    btnActual.setBackground(Color.YELLOW); // Preselección
 }
+
+
+  
 
 
 

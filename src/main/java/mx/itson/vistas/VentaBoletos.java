@@ -19,25 +19,25 @@ public class VentaBoletos extends javax.swing.JFrame {
     /**
      * Creates new form VentaBoletos
      */
-    private static final int NUM_ASIENTOS = 20; // Total de asientos
+    private static final int NUM_ASIENTOS = 20; 
     private static final Color DISPONIBLE_COLOR = Color.GREEN;
     private static final Color OCUPADO_COLOR = Color.RED;
     private int asientoSeleccionado = -1;
     
     
     private List<Asiento> asientos = new ArrayList<>();
- // 0 = disponible, 1 = ocupado
+ 
     private double gananciaTotal = 0.0;
 
     private String[] terminales = {"Navojoa", "Obregón", "Empalme", "Guaymas", "Hermosillo", "Santa Ana", "Magdalena", "Imuris", "Nogales"};
-    private int terminalActual = 0; // Empezamos en la primera terminal
+    private int terminalActual = 0; 
 
     public VentaBoletos() {
     initComponents();
     for (String terminal : terminales) {
     jComboBox1.addItem(terminal);
 }
-    for (int i = 0; i < 20; i++) { // 20 asientos por defecto
+    for (int i = 0; i < 20; i++) { 
         asientos.add(new Asiento());
     }
     agregarListenerAAsientos();
@@ -405,7 +405,7 @@ public class VentaBoletos extends javax.swing.JFrame {
         return;
     }
 
-    // Liberar asientos cuyo destino sea la terminal actual
+    
     int pasajerosBajados = 0;
     for (Asiento asiento : asientos) {
         if (asiento.isOcupado() && asiento.getDestino().equals(terminales[terminalActual])) {
@@ -418,14 +418,14 @@ public class VentaBoletos extends javax.swing.JFrame {
         }
     }
 
-    // Mensaje informativo
+    
     JOptionPane.showMessageDialog(this,
         "Se bajaron " + pasajerosBajados + " pasajeros en la terminal: " + terminales[terminalActual],
         "Terminal Actualizada",
         JOptionPane.INFORMATION_MESSAGE
     );
 
-    // Avanzar a la siguiente terminal
+    
     terminalActual++;
     actualizarTerminal();
         
@@ -454,7 +454,7 @@ public class VentaBoletos extends javax.swing.JFrame {
         return;
     }
 
-    // Asignar datos al asiento
+    
     Asiento asiento = asientos.get(asientoSeleccionado);
     asiento.setOcupado(true);
     asiento.setNombrePasajero(nombre);
@@ -464,14 +464,14 @@ public class VentaBoletos extends javax.swing.JFrame {
 
     gananciaTotal += precio;
 
-    // Actualizar visualización del botón
+    
     JButton btn = obtenerBotonPorIndice(asientoSeleccionado);
     btn.setBackground(Color.RED);
     btn.setEnabled(false);
 
     JOptionPane.showMessageDialog(this, "Boleto comprado para: " + nombre + " en el asiento " + (asientoSeleccionado + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
-    // Resetear campos
+    
     asientoSeleccionado = -1;
     txtNombre.setText("");
     txtPrecio.setText("");
@@ -480,7 +480,7 @@ public class VentaBoletos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnComprarActionPerformed
 
     private void agregarListenerAAsientos() {
-        // Agregar listeners a todos los botones de asientos
+        
         for (int i = 0; i < NUM_ASIENTOS; i++) {
             JButton boton = obtenerBotonPorIndice(i);
             final int asientoIndice = i;
@@ -492,7 +492,7 @@ public class VentaBoletos extends javax.swing.JFrame {
     lblTerminalActual.setText("Terminal actual: " + terminales[terminalActual]);
     mostrarAsientosDisponibles();
 
-    // Deshabilitar botón si estás en la última terminal
+    
     btnActualizarTerminal.setEnabled(terminalActual < terminales.length - 1);
 }
 
@@ -506,10 +506,10 @@ public class VentaBoletos extends javax.swing.JFrame {
             btn.setBackground(Color.RED);
             btn.setEnabled(false);
         } else if (i == asientoSeleccionado) {
-            btn.setBackground(Color.YELLOW); // Preselección
+            btn.setBackground(Color.YELLOW); 
             btn.setEnabled(true);
         } else {
-            btn.setBackground(Color.GREEN); // Disponible
+            btn.setBackground(Color.GREEN); 
             btn.setEnabled(true);
         }
     }
@@ -517,7 +517,7 @@ public class VentaBoletos extends javax.swing.JFrame {
 
 
     private JButton obtenerBotonPorIndice(int indice) {
-        // Obtener el botón correspondiente al índice
+        
         switch (indice) {
             case 0: return btnA1; case 1: return btnA2; case 2: return btnA3; case 3: return btnA4;
             case 4: return btnA5; case 5: return btnA6; case 6: return btnA7; case 7: return btnA8;
@@ -537,7 +537,7 @@ public class VentaBoletos extends javax.swing.JFrame {
 
     asientoSeleccionado = indice;
     JButton btnActual = obtenerBotonPorIndice(asientoSeleccionado);
-    btnActual.setBackground(Color.YELLOW); // Preselección
+    btnActual.setBackground(Color.YELLOW); 
 }
 
 

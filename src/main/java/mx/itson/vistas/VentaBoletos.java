@@ -8,7 +8,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import mx.itson.proyectobus.Asiento;
+import mx.itson.modelo.Asiento;
+
 
 /**
  *
@@ -390,6 +391,7 @@ public class VentaBoletos extends javax.swing.JFrame {
                    .append("Precio: ").append(asiento.getPrecio()).append("\n")
                    .append("Asiento: ").append(i + 1).append("\n\n");
         }
+        
     }
 
     reporte.append("Ganancia Total: ").append(gananciaTotal);
@@ -400,15 +402,15 @@ public class VentaBoletos extends javax.swing.JFrame {
 
     private void btnActualizarTerminalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarTerminalActionPerformed
 
-        if (terminalActual >= terminales.length - 1) {
+        if (terminalActual >= terminales.length) {
         JOptionPane.showMessageDialog(this, "Ya estás en la última terminal.", "Información", JOptionPane.INFORMATION_MESSAGE);
         return;
     }
 
-    
+    // Liberar asientos cuyo destino sea la terminal actual
     int pasajerosBajados = 0;
     for (Asiento asiento : asientos) {
-        if (asiento.isOcupado() && asiento.getDestino().equals(terminales[terminalActual])) {
+        if (asiento.isOcupado() && terminales[terminalActual].equals(asiento.getDestino())) {
             pasajerosBajados++;
             asiento.setOcupado(false);
             asiento.setNombrePasajero(null);
@@ -418,15 +420,28 @@ public class VentaBoletos extends javax.swing.JFrame {
         }
     }
 
-    
-    JOptionPane.showMessageDialog(this,
-        "Se bajaron " + pasajerosBajados + " pasajeros en la terminal: " + terminales[terminalActual],
-        "Terminal Actualizada",
-        JOptionPane.INFORMATION_MESSAGE
-    );
+    // Mostrar mensaje informativo
+    if (pasajerosBajados > 0) {
+        JOptionPane.showMessageDialog(this,
+            "Se bajaron " + pasajerosBajados + " pasajeros en la terminal: " + terminales[terminalActual],
+            "Terminal Actualizada",
+            JOptionPane.INFORMATION_MESSAGE);
+    } else {
+        JOptionPane.showMessageDialog(this,
+            "No hay pasajeros para bajar en esta terminal.",
+            "Terminal Actualizada",
+            JOptionPane.INFORMATION_MESSAGE);
+    }
 
+    // Actualizar visualización de los asientos
     
-    terminalActual++;
+
+    // Avanzar a la siguiente terminal, si no es la última
+    if (terminalActual < terminales.length - 1) {
+        terminalActual++;
+    }
+    mostrarAsientosDisponibles();
+    // Actualizar la terminal visualmente
     actualizarTerminal();
         
     }//GEN-LAST:event_btnActualizarTerminalActionPerformed
@@ -469,8 +484,10 @@ public class VentaBoletos extends javax.swing.JFrame {
     btn.setBackground(Color.RED);
     btn.setEnabled(false);
 
-    JOptionPane.showMessageDialog(this, "Boleto comprado para: " + nombre + " en el asiento " + (asientoSeleccionado + 1), "Compra Exitosa", JOptionPane.INFORMATION_MESSAGE);
-
+    JOptionPane.showMessageDialog(this, 
+    "Boleto comprado para: " + nombre + " en el asiento " + obtenerNombreAsiento(asientoSeleccionado), 
+    "Compra Exitosa", 
+    JOptionPane.INFORMATION_MESSAGE);
     
     asientoSeleccionado = -1;
     txtNombre.setText("");
@@ -496,6 +513,11 @@ public class VentaBoletos extends javax.swing.JFrame {
     btnActualizarTerminal.setEnabled(terminalActual < terminales.length - 1);
 }
 
+    private String obtenerNombreAsiento(int indice) {
+    char fila = (indice < 10) ? 'A' : 'B'; // A para los primeros 10, B para los demás
+    int numero = (indice % 10) + 1; // 1-10 en cada fila
+    return fila + String.valueOf(numero);
+}
 
     private void mostrarAsientosDisponibles() {
     for (int i = 0; i < asientos.size(); i++) {
